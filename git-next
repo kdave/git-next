@@ -49,8 +49,14 @@ def realbase(sect):
     if config.has_option(sect, "BASE"):
         return config.get(sect, "BASE")
     elif config.has_option(sect, "MERGEBASE"):
-        return subprocess.check_output(["git", "merge-base", upstream,
-            config.get(sect, "MERGEBASE")]).strip()
+        # needs git, can be expanded instead
+        try:
+            return subprocess.check_output(["git", "merge-base", upstream,
+                config.get(sect, "MERGEBASE")]).strip()
+        except subprocess.CalledProcessError:
+            return " ".join(["$(", "git", "merge-base", upstream,
+                config.get(sect, "MERGEBASE"), ")"])
+
     else:
         print "ERROR: %s: cannot have no BASE nor MERGEBASE" % (sect)
         sys.exit(1)
