@@ -9,6 +9,7 @@ import ConfigParser
 import sys
 import datetime
 import subprocess
+import getopt
 
 fnext=open("git-next.conf")
 config = ConfigParser.SafeConfigParser(allow_no_value=True)
@@ -70,6 +71,9 @@ def target_name(targ):
         name = name + "-" + date
 
     return name
+
+def action_push(target):
+    D("PUSH" + target)
 
 # gather list of sections in the topological order as included
 # using the @directive instead of branch
@@ -139,7 +143,7 @@ def dotarget(targ):
             val = config.get(targ, br)
             if val: continue
             if br.startswith("@"):
-                D("# grab result of " + br[1:])
+                D("grab result of " + br[1:])
                 br = target_name(br[1:])
             runcmd(GITMERGE + " %s" % (br) + AUTORESOLVE)
 
@@ -151,15 +155,31 @@ if dbgdump:
         for o in config.options(s):
             print " OPTION %s=%s" % (o, config.get(s,o))
 
-if len(sys.argv) == 1:
+optlist, args = getopt.getopt(sys.argv[1:], '',
+        [ 'push', 'list' ])
+
+D("OPTS " + str(optlist))
+D("ARGS " + str(args))
+
+if len(args) == 0 and len(optlist) == 0:
     dotarget(deftarget)
 else:
-    for target in sys.argv[1:]:
-        if target == '--list':
+    for opt in optlist:
+        if opt[0] == '--list':
             for s in config.sections():
                 print "SECTION:", s
+    cmds=[]
+    for opt in args:
+        if opt == '--push':
+            D("DO push")
+            cmds.append(action_push)
             continue
-        targets = gather_prereq(target)
+        targets = gather_prereq(opt)
         D("prereq",str(targets))
-        for t in targets:
-            dotarget(t)
+        if len(cmds) == 0:
+            for t in targets:
+                dotarget(t)
+        else:
+            for t in targets:
+                for act in cmds:
+                    act(t)
