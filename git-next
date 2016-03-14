@@ -24,6 +24,7 @@ gitmerge='git merge --no-edit'
 gitmergenoff='git merge --no-edit --no-ff'
 gitmergenoffrerere='git merge --no-edit --no-ff --rerere-autoupdate'
 
+DEBUG=False
 GITMERGE=gitmergenoffrerere
 AUTORESOLVE=" || git commit --no-edit"
 
@@ -61,7 +62,9 @@ def realbase(sect):
         print "ERROR: %s: cannot have no BASE nor MERGEBASE" % (sect)
         sys.exit(1)
 
-def D(*args):
+def DBG(*args):
+    if not DEBUG:
+        return
     print "# DEBUG:"," ".join(args)
 
 def target_name(targ):
@@ -72,7 +75,7 @@ def target_name(targ):
     return name
 
 def action_push(target):
-    D("PUSH" + target)
+    DBG("PUSH" + target)
 
 # gather list of sections in the topological order as included
 # using the @directive instead of branch
@@ -90,10 +93,10 @@ def gather_prereq(targ, stack=[]):
     for br in config.options(targ):
         val = config.get(targ, br)
         if val:
-            D("prereq skip", br, "=", val)
+            DBG("prereq skip", br, "=", val)
             continue
         if br.startswith("@"):
-            D("found rec ", br[1:])
+            DBG("found rec ", br[1:])
             if br[1:] == targ:
                 print "ERROR: self recursion in " + targ
                 print "Stack:\n\t" + "\n\t".join(stack)
@@ -108,7 +111,7 @@ def gather_prereq(targ, stack=[]):
 
 # do leaf target, no recursion
 def dotarget(targ):
-    D("do target " + targ)
+    DBG("do target " + targ)
 
     # mandatory
     name = config.get(targ, "name")
@@ -142,17 +145,20 @@ def dotarget(targ):
             val = config.get(targ, br)
             if val: continue
             if br.startswith("@"):
-                D("grab result of " + br[1:])
+                DBG("grab result of " + br[1:])
                 br = target_name(br[1:])
             runcmd(GITMERGE + " %s" % (br) + AUTORESOLVE)
 
 ##############################################################################
 # main
 optlist, args = getopt.getopt(sys.argv[1:], '',
-        [ 'push', 'list', 'dump-config' ])
+        [ 'push', 'list', 'dump-config', 'debug' ])
 
-D("OPTS " + str(optlist))
-D("ARGS " + str(args))
+if '--debug' in optlist:
+    DEBUG = True
+
+DBG("OPTS " + str(optlist))
+DBG("ARGS " + str(args))
 
 if len(args) == 0 and len(optlist) == 0:
     dotarget(deftarget)
@@ -166,14 +172,15 @@ else:
         if opt[0] == '--list':
             for s in config.sections():
                 print "SECTION:", s
+
     cmds=[]
     for opt in args:
         if opt == '--push':
-            D("DO push")
+            DBG("DO push")
             cmds.append(action_push)
             continue
         targets = gather_prereq(opt)
-        D("prereq",str(targets))
+        DBG("prereq",str(targets))
         if len(cmds) == 0:
             for t in targets:
                 dotarget(t)
