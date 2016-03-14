@@ -16,7 +16,6 @@ config = ConfigParser.SafeConfigParser(allow_no_value=True)
 config.readfp(fnext)
 
 # TODO: make configurable
-dbgdump=False
 date=datetime.datetime.now().strftime("%Y%m%d")
 deftarget="next"
 upstream="master"
@@ -149,14 +148,8 @@ def dotarget(targ):
 
 ##############################################################################
 # main
-if dbgdump:
-    for s in config.sections():
-        print "SECTION", s
-        for o in config.options(s):
-            print " OPTION %s=%s" % (o, config.get(s,o))
-
 optlist, args = getopt.getopt(sys.argv[1:], '',
-        [ 'push', 'list' ])
+        [ 'push', 'list', 'dump-config' ])
 
 D("OPTS " + str(optlist))
 D("ARGS " + str(args))
@@ -165,6 +158,11 @@ if len(args) == 0 and len(optlist) == 0:
     dotarget(deftarget)
 else:
     for opt in optlist:
+        if opt[0] == '--dump-config':
+            for s in config.sections():
+                print "SECTION", s
+                for o in config.options(s):
+                    print " OPTION %s=%s" % (o, config.get(s,o))
         if opt[0] == '--list':
             for s in config.sections():
                 print "SECTION:", s
