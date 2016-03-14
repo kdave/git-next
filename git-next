@@ -17,7 +17,6 @@ config.readfp(fnext)
 
 # TODO: make configurable
 date=datetime.datetime.now().strftime("%Y%m%d")
-deftarget="next"
 upstream="master"
 
 gitmerge='git merge --no-edit'
@@ -160,31 +159,28 @@ if '--debug' in optlist:
 DBG("OPTS " + str(optlist))
 DBG("ARGS " + str(args))
 
-if len(args) == 0 and len(optlist) == 0:
-    dotarget(deftarget)
-else:
-    for opt in optlist:
-        if opt[0] == '--dump-config':
-            for s in config.sections():
-                print "SECTION", s
-                for o in config.options(s):
-                    print " OPTION %s=%s" % (o, config.get(s,o))
-        if opt[0] == '--list':
-            for s in config.sections():
-                print "SECTION:", s
+for opt in optlist:
+    if opt[0] == '--dump-config':
+        for s in config.sections():
+            print "SECTION", s
+            for o in config.options(s):
+                print " OPTION %s=%s" % (o, config.get(s,o))
+    if opt[0] == '--list':
+        for s in config.sections():
+            print "SECTION:", s
 
-    cmds=[]
-    for opt in args:
-        if opt == '--push':
-            DBG("DO push")
-            cmds.append(action_push)
-            continue
-        targets = gather_prereq(opt)
-        DBG("prereq",str(targets))
-        if len(cmds) == 0:
-            for t in targets:
-                dotarget(t)
-        else:
-            for t in targets:
-                for act in cmds:
-                    act(t)
+cmds=[]
+for opt in args:
+    if opt == '--push':
+        DBG("DO push")
+        cmds.append(action_push)
+        continue
+    targets = gather_prereq(opt)
+    DBG("prereq",str(targets))
+    if len(cmds) == 0:
+        for t in targets:
+            dotarget(t)
+    else:
+        for t in targets:
+            for act in cmds:
+                act(t)
