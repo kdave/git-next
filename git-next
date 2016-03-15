@@ -26,6 +26,7 @@ gitmergenoffrerere='git merge --no-edit --no-ff --rerere-autoupdate'
 DEBUG=False
 GITMERGE=gitmergenoffrerere
 AUTORESOLVE=" || git commit --no-edit"
+FETCH = False
 
 def config_get_bool(section, value, default, debug=False):
     try:
@@ -123,7 +124,8 @@ def dotarget(targ):
     try:
         remote = config.get(targ, "remote")
         rbranch = config.get(targ, "rbranch")
-        runcmd("git fetch %s" % remote)
+        if FETCH:
+            runcmd("git fetch %s" % remote)
     except ConfigParser.NoOptionError:
         remote = None
         rbranch = None
@@ -151,7 +153,7 @@ def dotarget(targ):
 ##############################################################################
 # main
 optlist, args = getopt.getopt(sys.argv[1:], '',
-        [ 'push', 'list', 'dump-config', 'debug' ])
+        [ 'push', 'list', 'dump-config', 'debug', 'fetch' ])
 
 if '--debug' in optlist:
     DEBUG = True
@@ -168,6 +170,8 @@ for opt in optlist:
     if opt[0] == '--list':
         for s in config.sections():
             print "SECTION:", s
+    if opt[0] == '--fetch':
+        FETCH = True
 
 cmds=[]
 for opt in args:

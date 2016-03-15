@@ -22,6 +22,7 @@ nonexistent branches are handled.
 * `--debug`: print debugging messages as shell comments
 * `--dump-config`: parse config sections, variables and branches from the config
 * `--list`: list just the sections
+* `--fetch`: attempt to fetch before working with a remote
 
 ### Arguments
 
