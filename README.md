@@ -23,6 +23,7 @@ nonexistent branches are handled.
 * `--dump-config`: parse config sections, variables and branches from the config
 * `--list`: list just the sections
 * `--fetch`: attempt to fetch before working with a remote
+* `--recursive`: recreate all targets recursively
 
 ### Arguments
 

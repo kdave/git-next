@@ -27,6 +27,7 @@ DEBUG=False
 GITMERGE=gitmergenoffrerere
 AUTORESOLVE=" || git commit --no-edit"
 FETCH = False
+RECURSIVE = False
 
 def config_get_bool(section, value, default, debug=False):
     try:
@@ -153,7 +154,7 @@ def dotarget(targ):
 ##############################################################################
 # main
 optlist, args = getopt.getopt(sys.argv[1:], '',
-        [ 'list', 'dump-config', 'debug', 'fetch' ])
+        [ 'list', 'dump-config', 'debug', 'fetch', 'recursive' ])
 
 if '--debug' in optlist:
     DEBUG = True
@@ -172,6 +173,8 @@ for opt in optlist:
             print "SECTION:", s
     if opt[0] == '--fetch':
         FETCH = True
+    if opt[0] == '--recursive':
+        RECURSIVE = True
 
 cmds=[]
 for opt in args:
@@ -181,10 +184,15 @@ for opt in args:
         continue
     targets = gather_prereq(opt)
     DBG("prereq",str(targets))
-    if len(cmds) == 0:
+    if RECURSIVE:
+        DBG("RECURSIVELY generate deps")
         for t in targets:
             dotarget(t)
     else:
-        for t in targets:
+        DBG("VERIFY deps")
+        for t in targets[:-1]:
             for act in cmds:
                 act(t)
+        DBG("CREATE target")
+        for t in targets[-1:]:
+            dotarget(t)
