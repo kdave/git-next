@@ -153,7 +153,7 @@ def dotarget(targ):
 ##############################################################################
 # main
 optlist, args = getopt.getopt(sys.argv[1:], '',
-        [ 'push', 'list', 'dump-config', 'debug', 'fetch' ])
+        [ 'list', 'dump-config', 'debug', 'fetch' ])
 
 if '--debug' in optlist:
     DEBUG = True
@@ -175,7 +175,7 @@ for opt in optlist:
 
 cmds=[]
 for opt in args:
-    if opt == '--push':
+    if opt == '+push':
         DBG("DO push")
         cmds.append(action_push)
         continue
