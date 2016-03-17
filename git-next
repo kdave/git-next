@@ -76,7 +76,20 @@ def target_name(targ):
     return name
 
 def action_push(target):
-    DBG("PUSH" + target)
+    DBG("PUSH " + target)
+
+    if not config.has_option(target, "REMOTE"):
+        print "ERROR: %s: REMOTE not set for push" % (target)
+        sys.exit(1)
+    if not config.has_option(target, "RNAME"):
+        print "ERROR: %s: RNAME not set for push" % (target)
+        sys.exit(1)
+
+    remote = config.get(target, "REMOTE")
+    rname = config.get(target, "RNAME")
+    name = target_name(target)
+
+    runcmd("git push " + remote + " " + name + ":" + rname)
 
 # gather list of sections in the topological order as included
 # using the @directive instead of branch

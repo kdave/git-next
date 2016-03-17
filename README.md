@@ -65,6 +65,7 @@ Other:
 * `TIMESTAMP=bool`: append a timestamp in format *-%Y%m%d* to the branch name
 * `SEALED=bool`: do nothing for the given target
 * `REMOTE=string`: name of remote to fetch the `RBRANCH`
+* `RNAME=string`: name of remote branch to push to, requires `REMOTE`
 
 User-defined:
 
