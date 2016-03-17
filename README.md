@@ -24,6 +24,7 @@ nonexistent branches are handled.
 * `--list`: list just the sections
 * `--fetch`: attempt to fetch before working with a remote
 * `--recursive`: recreate all targets recursively
+* `--upstream`: change default upstream branch name (default: *master*)
 
 ### Arguments
 
