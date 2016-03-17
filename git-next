@@ -115,7 +115,7 @@ def dotarget(targ):
     DBG("do target " + targ)
 
     # mandatory
-    name = config.get(targ, "name")
+    name = config.get(targ, "NAME")
 
     sealed = config_get_bool(targ, "SEALED", False)
     if sealed:
@@ -123,8 +123,8 @@ def dotarget(targ):
         sys.exit(2)
 
     try:
-        remote = config.get(targ, "remote")
-        rbranch = config.get(targ, "rbranch")
+        remote = config.get(targ, "REMOTE")
+        rbranch = config.get(targ, "RBRANCH")
         if FETCH:
             runcmd("git fetch %s" % remote)
     except ConfigParser.NoOptionError:
