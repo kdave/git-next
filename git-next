@@ -156,7 +156,7 @@ def dotarget(targ):
 optlist, args = getopt.getopt(sys.argv[1:], '',
         [ 'list', 'dump-config', 'debug', 'fetch', 'recursive' ])
 
-if '--debug' in optlist:
+if '--debug' in [x[0] for x in optlist]:
     DEBUG = True
 
 DBG("OPTS " + str(optlist))
