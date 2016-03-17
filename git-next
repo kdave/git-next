@@ -179,23 +179,26 @@ for opt in optlist:
     if opt[0] == '--upstream':
         UPSTREAM = opt[1]
 
-cmds=[]
+actions=[]
 for opt in args:
+    DBG("OPTION: " + opt)
     if opt == '+push':
         DBG("DO push")
-        cmds.append(action_push)
+        actions.append(action_push)
         continue
     targets = gather_prereq(opt)
     DBG("prereq",str(targets))
-    if RECURSIVE:
-        DBG("RECURSIVELY generate deps")
-        for t in targets:
-            dotarget(t)
+    # default action is just generate and print
+    if len(actions) == 0:
+        if RECURSIVE:
+            DBG("RECURSIVELY generate deps")
+            for t in targets:
+                dotarget(t)
+        else:
+            DBG("CREATE target")
+            for t in targets[-1:]:
+                dotarget(t)
     else:
-        DBG("VERIFY deps")
-        for t in targets[:-1]:
-            for act in cmds:
-                act(t)
-        DBG("CREATE target")
-        for t in targets[-1:]:
-            dotarget(t)
+        DBG("ACTIONS: " + str(actions))
+        for act in actions:
+            act(opt)

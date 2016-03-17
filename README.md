@@ -87,6 +87,12 @@ is allowed.
 Duplicate references are silently ignored, because the ini file parser works
 like that.
 
+### Commands
+
+Third type of argument can be a *command* that can do a separate action on
+existing branches. Usually translates to a git command with substituted branch
+names or remotes etc.
+
 # Use case
 
 TBD
