@@ -28,6 +28,7 @@ AUTORESOLVE=" || git commit --no-edit"
 FETCH = False
 RECURSIVE = False
 UPSTREAM = "master"
+DRYRUN = True
 
 def config_get_bool(section, value, default, debug=False):
     try:
@@ -166,9 +167,9 @@ def dotarget(targ):
 
 ##############################################################################
 # main
-optlist, args = getopt.getopt(sys.argv[1:], 'fr',
+optlist, args = getopt.getopt(sys.argv[1:], 'fnr',
         [ 'list', 'dump-config', 'debug', 'fetch', 'recursive',
-          'upstream='])
+          'upstream=', 'dry-run'])
 
 if '--debug' in [x[0] for x in optlist]:
     DEBUG = True
@@ -191,6 +192,8 @@ for opt in optlist:
         RECURSIVE = True
     if opt[0] == '--upstream':
         UPSTREAM = opt[1]
+    if opt[0] in ('--dry-run', '-n'):
+        DRYRUN = True
 
 actions=[]
 for opt in args:

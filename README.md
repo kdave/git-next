@@ -25,6 +25,7 @@ nonexistent branches are handled.
 * `--fetch`: attempt to fetch before working with a remote
 * `--recursive`: recreate all targets recursively
 * `--upstream`: change default upstream branch name (default: *master*)
+* `--dry-run`: print the shell commands, do not execute
 
 ### Arguments
 
