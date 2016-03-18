@@ -166,7 +166,7 @@ def dotarget(targ):
 
 ##############################################################################
 # main
-optlist, args = getopt.getopt(sys.argv[1:], '',
+optlist, args = getopt.getopt(sys.argv[1:], 'fr',
         [ 'list', 'dump-config', 'debug', 'fetch', 'recursive',
           'upstream='])
 
@@ -185,9 +185,9 @@ for opt in optlist:
     if opt[0] == '--list':
         for s in config.sections():
             print "SECTION:", s
-    if opt[0] == '--fetch':
+    if opt[0] in ('--fetch', '-f'):
         FETCH = True
-    if opt[0] == '--recursive':
+    if opt[0] in ('--recursive', '-r'):
         RECURSIVE = True
     if opt[0] == '--upstream':
         UPSTREAM = opt[1]
