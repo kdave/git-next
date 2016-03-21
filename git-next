@@ -76,7 +76,7 @@ def target_name(targ):
 
     return name
 
-def action_push(target):
+def do_action_push(target, force=False):
     DBG("PUSH " + target)
 
     if not config.has_option(target, "REMOTE"):
@@ -89,8 +89,16 @@ def action_push(target):
     remote = config.get(target, "REMOTE")
     rname = config.get(target, "RNAME")
     name = target_name(target)
+    if force: force = ' -f '
+    else: force = ''
 
-    runcmd("git push " + remote + " " + name + ":" + rname)
+    runcmd("git push " + force + remote + " " + name + ":" + rname)
+
+def action_push(target):
+    do_action_push(target, False)
+
+def action_pushf(target):
+    do_action_push(target, True)
 
 # gather list of sections in the topological order as included
 # using the @directive instead of branch
@@ -201,6 +209,10 @@ for opt in args:
     if opt == '+push':
         DBG("DO push")
         actions.append(action_push)
+        continue
+    if opt == '+pushf':
+        DBG("DO forced push")
+        actions.append(action_pushf)
         continue
     targets = gather_prereq(opt)
     DBG("prereq",str(targets))

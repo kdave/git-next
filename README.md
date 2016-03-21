@@ -95,6 +95,9 @@ Third type of argument can be a *command* that can do a separate action on
 existing branches. Usually translates to a git command with substituted branch
 names or remotes etc.
 
+* `+push`: push to remote, translates to `git push REMOTE NAME:RNAME
+* `+pushf`: forced push to remote, translates to `git push -f REMOTE NAME:RNAME
+
 # Use case
 
 TBD
