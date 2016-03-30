@@ -10,6 +10,7 @@ import sys
 import datetime
 import subprocess
 import getopt
+import re
 
 fnext=open("git-next.conf")
 config = ConfigParser.SafeConfigParser(allow_no_value=True)
@@ -100,6 +101,62 @@ def action_push(target):
 def action_pushf(target):
     do_action_push(target, True)
 
+def do_tslist_target(target, keeplast):
+    if not config_get_bool(target, "TIMESTAMP", False):
+        return
+
+    namebase = config.get(target, "NAME")
+    branches = subprocess.check_output(["git", "branch"]).strip().split("\n")
+    branches = [ x.strip() for x in branches ]
+    branches = [ x[2:] if x.startswith('* ') else x for x in branches ]
+    # DBG("BRANCHES", ",".join(branches))
+    tokill = []
+    for x in branches:
+        # TODO: match configured format
+        m = re.match(r'' + namebase + '-[0-9]{8}', x)
+        if m:
+            tokill.append(x)
+
+    if keeplast:
+        for x in tokill[:-1]:
+            DBG("KILL (keeplast)",x)
+            runcmd(x)
+        DBG("keeplast", tokill[-1:][0])
+    else:
+        for x in tokill:
+            DBG("KILL (all)",x)
+            runcmd(x)
+
+def action_tslist1(target):
+    DBG("TSLIST1 " + target)
+
+    name = target_name(target)
+    DBG("NAME " + name)
+    targets = gather_prereq(target, [])
+    DBG("prereq",str(targets))
+
+    if RECURSIVE:
+        for t in targets:
+            name = target_name(t)
+            do_tslist_target(t, keeplast = True)
+    else:
+        do_tslist_target(target, keeplast = True)
+
+def action_tslist(target):
+    DBG("TSLIST " + target)
+
+    name = target_name(target)
+    DBG("NAME " + name)
+    targets = gather_prereq(target, [])
+    DBG("prereq",str(targets))
+
+    if RECURSIVE:
+        for t in targets:
+            name = target_name(t)
+            do_tslist_target(t, keeplast = False)
+    else:
+        do_tslist_target(target, keeplast = False)
+
 # gather list of sections in the topological order as included
 # using the @directive instead of branch
 def gather_prereq(targ, stack):
@@ -119,7 +176,7 @@ def gather_prereq(targ, stack):
             DBG("prereq skip", br, "=", val)
             continue
         if br.startswith("@"):
-            DBG("found rec ", br[1:])
+            DBG("found rec", br[1:])
             if br[1:] == targ:
                 print "ERROR: self recursion in " + targ
                 print "Stack:\n\t" + "\n\t".join(stack)
@@ -213,6 +270,14 @@ for opt in args:
     if opt == '+pushf':
         DBG("DO forced push")
         actions.append(action_pushf)
+        continue
+    if opt == '+tslist1':
+        DBG("DO list timestamped branches except the latest one")
+        actions.append(action_tslist1)
+        continue
+    if opt == '+tslist':
+        DBG("DO list all timestamped branches")
+        actions.append(action_tslist)
         continue
     if opt.startswith('+'):
         print "ERROR: unknown action %s" % (opt)
