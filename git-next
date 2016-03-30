@@ -214,6 +214,9 @@ for opt in args:
         DBG("DO forced push")
         actions.append(action_pushf)
         continue
+    if opt.startswith('+'):
+        print "ERROR: unknown action %s" % (opt)
+        sys.exit(13)
     targets = gather_prereq(opt, [])
     DBG("prereq",str(targets))
     # default action is just generate and print
