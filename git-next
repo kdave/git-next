@@ -102,7 +102,7 @@ def action_pushf(target):
 
 # gather list of sections in the topological order as included
 # using the @directive instead of branch
-def gather_prereq(targ, stack=[]):
+def gather_prereq(targ, stack):
     name = config.get(targ, "NAME")
 
     prereq = []
@@ -214,7 +214,7 @@ for opt in args:
         DBG("DO forced push")
         actions.append(action_pushf)
         continue
-    targets = gather_prereq(opt)
+    targets = gather_prereq(opt, [])
     DBG("prereq",str(targets))
     # default action is just generate and print
     if len(actions) == 0:
