@@ -102,7 +102,7 @@ def action_push(target):
 def action_pushf(target):
     do_action_push(target, True)
 
-def do_tslist_target(target, keeplast):
+def do_tslist_target(target, keeplast, cmd):
     if not config_get_bool(target, "TIMESTAMP", False):
         return
 
@@ -121,42 +121,49 @@ def do_tslist_target(target, keeplast):
     if keeplast:
         for x in tokill[:-1]:
             DBG("KILL (keeplast)",x)
-            runcmd(x)
+            runcmd(cmd + x)
         DBG("keeplast", tokill[-1:][0])
     else:
         for x in tokill:
             DBG("KILL (all)",x)
-            runcmd(x)
+            runcmd(cmd + x)
+
+def do_ts(target, keeplast, cmd):
+    name = target_name(target)
+    DBG("NAME " + name)
+    targets = gather_prereq(target, [])
+    DBG("prereq",str(targets))
+    if RECURSIVE:
+        for t in targets:
+            name = target_name(t)
+            do_tslist_target(t, keeplast = keeplast, cmd = cmd)
+    else:
+        do_tslist_target(target, keeplast = keeplast, cmd = cmd)
 
 def action_tslist1(target):
     DBG("TSLIST1 " + target)
-
-    name = target_name(target)
-    DBG("NAME " + name)
-    targets = gather_prereq(target, [])
-    DBG("prereq",str(targets))
-
-    if RECURSIVE:
-        for t in targets:
-            name = target_name(t)
-            do_tslist_target(t, keeplast = True)
-    else:
-        do_tslist_target(target, keeplast = True)
+    do_ts(target, keeplast = True, cmd = '')
 
 def action_tslist(target):
     DBG("TSLIST " + target)
+    do_ts(target, keeplast = False, cmd = '')
 
-    name = target_name(target)
-    DBG("NAME " + name)
-    targets = gather_prereq(target, [])
-    DBG("prereq",str(targets))
-
-    if RECURSIVE:
-        for t in targets:
-            name = target_name(t)
-            do_tslist_target(t, keeplast = False)
+def do_ts_remote(target, keeplast):
+    if REMOTE:
+        for r in REMOTE:
+            cmd = 'git push -f %s :' % (r)
+            do_ts(target, keeplast = keeplast, cmd = cmd)
     else:
-        do_tslist_target(target, keeplast = False)
+        cmd = 'git branch -D '
+        do_ts(target, keeplast = keeplast, cmd = cmd)
+
+def action_tsclean1(target):
+    DBG("TSCLEAN1 " + target)
+    do_ts_remote(target, keeplast = True);
+
+def action_tsclean(target):
+    DBG("TSCLEAN1 " + target)
+    do_ts_remote(target, keeplast = False);
 
 # gather list of sections in the topological order as included
 # using the @directive instead of branch
@@ -281,6 +288,16 @@ for opt in args:
     if opt == '+tslist':
         DBG("DO list all timestamped branches")
         actions.append(action_tslist)
+        continue
+    if opt == '+tsclean1':
+        # optional parameter: remote
+        DBG("DO clean timestamped branches except the latest one")
+        actions.append(action_tsclean1)
+        continue
+    if opt == '+tsclean':
+        # optional parameter: remote
+        DBG("DO clean timestamped branches")
+        actions.append(action_tsclean)
         continue
     if opt.startswith('+'):
         print "ERROR: unknown action %s" % (opt)
