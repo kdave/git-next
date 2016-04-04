@@ -150,11 +150,15 @@ def action_tslist(target):
 
 def do_ts_remote(target, keeplast):
     if REMOTE:
-        for r in REMOTE:
-            cmd = 'git push -f %s :' % (r)
-            do_ts(target, keeplast = keeplast, cmd = cmd)
+        remote = REMOTE
     else:
-        cmd = 'git branch -D '
+        remote = [ '.' ]
+
+    for r in remote:
+        if r == '.':
+            cmd = 'git branch -D '
+        else:
+            cmd = 'git push -f %s :' % (r)
         do_ts(target, keeplast = keeplast, cmd = cmd)
 
 def action_tsclean1(target):
