@@ -1,6 +1,6 @@
 Git branch integration helper.
 
-*Status:* raw, feature incomplete, unpolished, works for me to
+*Status:* feature semi-complete, unpolished, works for me to
 assemble for-next branches for linux kernel.
 
 ## Syntax
@@ -13,7 +13,7 @@ The result is series of shell commands that lead to the given target's branch
 name after merging all depending branches. Feed the instructions to `sh -ex`
 that will proceed until the first problem that's not handled internally.
 
-The '-x' switch will show the commands as they're executed, `-e` will stop
+The `-x` switch will show the commands as they're executed, `-e` will stop
 execution if any git command fails. Typical non-error failures like deleting
 nonexistent branches are handled.
 
@@ -26,6 +26,9 @@ nonexistent branches are handled.
 * `--recursive`: recreate all targets recursively
 * `--upstream`: change default upstream branch name (default: *master*)
 * `--dry-run`: print the shell commands, do not execute
+* `--remote`: comma separated list of remote names, curretnly works with a few
+  actions (see bellow), a special remote name `.` means the local and the git
+  commands are adjusted accordingly
 
 ### Arguments
 
@@ -97,6 +100,15 @@ names or remotes etc.
 
 * `+push`: push to remote, translates to `git push REMOTE NAME:RNAME
 * `+pushf`: forced push to remote, translates to `git push -f REMOTE NAME:RNAME
+* `+tslist`: list names of existing local timestamped branches for a given
+  target, recursion is supported
+* `+tslist1`: dtto, but ommit the last one, typically the branch that's been
+  created on the same day
+* `+tsclean`: similar to `tslist`, but emit git commands to delete the local
+  branch or delete the remotes, recursion is supported, optional is the list of
+  remotes
+* `+tsclean1`: dtto, but ommit the last one, typically the branch that's been
+  created on the same day
 
 # Use case
 
@@ -107,5 +119,16 @@ TBD
 There are similar tools, but they track the branch assembly instructions in a
 way that was (for me) inconvienient to maintain. Previous version was a mockery
 written in shell which was hard to extend.
+
+Hilights:
+
+* the config is in a separate file
+* ... can be tracked externally in git as well
+* ... sections can be copied, renamed, quick-tested, archived
+* ... in-place comments help tracking status
+* currently, only the commands are printed
+* ... so dangerous operations are not immediatelly destructive
+* ... you'll see exactly what's going to be executed
+* ... ... and that the git web tools are cool but git command line is really powerful
 
 License: [GPL 2](https://www.gnu.org/licenses/gpl-2.0.html)
