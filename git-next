@@ -56,10 +56,16 @@ gitmergenoffrerere='git merge --no-edit --no-ff --rerere-autoupdate'
 DEBUG=False
 GITMERGE=gitmergenoffrerere
 AUTORESOLVE=" || git commit --no-edit"
+
+# --fetch, -f
 FETCH = False
+# --recursive, -r
 RECURSIVE = False
+# --upstream
 UPSTREAM = "master"
+# --dry-run, -n
 DRYRUN = True
+# --remote
 REMOTE = []
 
 def runcmd(command):
