@@ -3,7 +3,7 @@
 #
 # usage: $0 [target]
 #
-# generates git commands, pipe to 'sh -ex' to execute
+# generates git commands, pipe to 'sh -ex' to execute or use '-xe' directly
 
 import ConfigParser
 import sys
@@ -67,9 +67,21 @@ UPSTREAM = "master"
 DRYRUN = True
 # --remote
 REMOTE = []
+# --exec, -x
+EXECUTE = False
+# --errors, -e
+CATCHERRORS = False
 
 def runcmd(command):
-    print command
+    if EXECUTE:
+        print "+", command
+        ret = subprocess.call(command, shell = True)
+        if CATCHERRORS:
+            if ret != 0:
+                print "ERROR: shell exited with %d" % (ret)
+                sys.exit(ret)
+    else:
+        print command
 
 def realbase(sect):
     if config.has_option(sect, "BASE") and config.has_option(sect, "MERGEBASE"):
@@ -269,9 +281,9 @@ def dotarget(targ):
 
 ##############################################################################
 # main
-optlist, args = getopt.getopt(sys.argv[1:], 'fnr',
+optlist, args = getopt.getopt(sys.argv[1:], 'efnrx',
         [ 'list', 'dump-config', 'debug', 'fetch', 'recursive',
-          'upstream=', 'dry-run', 'remote='])
+          'upstream=', 'dry-run', 'remote=', 'exec', 'errors'])
 
 if '--debug' in [x[0] for x in optlist]:
     DEBUG = True
@@ -298,6 +310,10 @@ for opt in optlist:
         DRYRUN = True
     if opt[0] == '--remote':
         REMOTE += opt[1].split(',')
+    if opt[0] in ('--errors', '-e'):
+        CATCHERRORS = True;
+    if opt[0] in ('--exec', '-x'):
+        EXECUTE = True;
 
 actions=[]
 for opt in args:
