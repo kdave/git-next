@@ -14,6 +14,16 @@ import re
 
 class MyConfigParser(ConfigParser.SafeConfigParser):
     def __init__(self):
+        # allow only key=value
+        self.OPTCRE_NV = re.compile(
+             r'(?P<option>[^=\s][^=]*)'          # very permissive!
+             r'\s*(?:'                           # any number of space/tab,
+             r'(?P<vi>[=])\s*'                   # optionally followed by
+             # separator (either : or
+             # =), followed by any #
+             # space/tab
+             r'(?P<value>.*))?$'                 # everything up to eol
+             )
         ConfigParser.SafeConfigParser.__init__(self, allow_no_value=True)
 
     # Keep key names as-is, use upper case everywhere, keep case for branch names
