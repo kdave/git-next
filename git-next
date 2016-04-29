@@ -102,12 +102,13 @@ def target_name(targ):
 
     return name
 
-def do_action_push(target, force=False):
+def do_action_push(target, force=False, remote=None):
     DBG("PUSH " + target)
 
-    if not config.has_option(target, "REMOTE"):
-        print "ERROR: %s: REMOTE not set for push" % (target)
-        sys.exit(1)
+    if not remote:
+        if not config.has_option(target, "REMOTE"):
+            print "ERROR: %s: REMOTE not set for push" % (target)
+            sys.exit(1)
     if not config.has_option(target, "RNAME"):
         print "ERROR: %s: RNAME not set for push" % (target)
         sys.exit(1)
@@ -302,10 +303,12 @@ actions=[]
 for opt in args:
     DBG("OPTION: " + opt)
     if opt == '+push':
+        # optional parameter: remote
         DBG("DO push")
         actions.append(action_push)
         continue
     if opt == '+pushf':
+        # optional parameter: remote
         DBG("DO forced push")
         actions.append(action_pushf)
         continue
