@@ -213,6 +213,8 @@ def gather_prereq(targ, stack):
 
     prereq = []
 
+    DBG("gather: " + targ + ", stack=" + str(stack))
+
     if targ in stack:
         print "ERROR: indirect recursion in " + targ
         print "Stack:\n\t" + "\n\t".join(stack)
@@ -230,12 +232,11 @@ def gather_prereq(targ, stack):
                 print "ERROR: self recursion in " + targ
                 print "Stack:\n\t" + "\n\t".join(stack)
                 sys.exit(13)
-            prereq = prereq + gather_prereq(br[1:], stack)
-            if targ in prereq:
-                print "ERROR: recursion loop in " + targ
-                print "Stack:\n\t" + "\n\t".join(stack)
-                sys.exit(13)
+            for pr in gather_prereq(br[1:], stack):
+                if not (pr in prereq):
+                    prereq.append(pr)
 
+    stack.pop()
     return prereq + [ targ ]
 
 # do leaf target, no recursion
