@@ -245,6 +245,12 @@ def dotarget(targ):
 
     # mandatory
     name = config.get(targ, "NAME")
+    gitmergeoptions = ''
+    try:
+        gitmergeoptions = config.get(targ, "GITMERGEOPTIONS")
+        DBG("use additional git merge options " + gitmergeoptions)
+    except ConfigParser.NoOptionError:
+        pass
 
     sealed = config_get_bool(targ, "SEALED", False)
     if sealed:
@@ -278,7 +284,7 @@ def dotarget(targ):
             if br.startswith("@"):
                 DBG("grab result of " + br[1:])
                 br = target_name(br[1:])
-            runcmd(GITMERGE + " %s" % (br) + AUTORESOLVE)
+            runcmd(GITMERGE + " %s %s" % (gitmergeoptions, (br) + AUTORESOLVE))
 
 ##############################################################################
 # main

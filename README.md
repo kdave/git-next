@@ -70,6 +70,7 @@ Other:
 * `SEALED=bool`: do nothing for the given target
 * `REMOTE=string`: name of remote to fetch the `RBRANCH`
 * `RNAME=string`: name of remote branch to push to, requires `REMOTE`
+* `GITMERGEOPTIONS`: additional options to `git-merg`, eg. strategy, squash or `--allow-unrelated-histories`
 
 User-defined:
 
