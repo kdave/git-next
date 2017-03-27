@@ -206,6 +206,15 @@ def action_tsclean(target):
     DBG("TSCLEAN1 " + target)
     do_ts_remote(target, keeplast = False);
 
+def do_checkout(target):
+    name = target_name(target)
+    DBG("CHECKOUT " + target + ": " + name)
+    runcmd("git checkout " + name)
+
+def action_checkout(target):
+    DBG("CHECKOUT " + target)
+    do_checkout(target)
+
 # gather list of sections in the topological order as included
 # using the @directive instead of branch
 def gather_prereq(targ, stack):
@@ -352,6 +361,10 @@ for opt in args:
         # optional parameter: remote
         DBG("DO clean timestamped branches")
         actions.append(action_tsclean)
+        continue
+    if opt == '+checkout' or opt == '+co':
+        DBG("checkout the target branch")
+        actions.append(action_checkout)
         continue
     if opt.startswith('+'):
         print "ERROR: unknown action %s" % (opt)

@@ -110,6 +110,8 @@ names or remotes etc.
   remotes
 * `+tsclean1`: dtto, but ommit the last one, typically the branch that's been
   created on the same day
+* `+checkout` or `+co`: checkout the branch of a given target (eg. with
+  timestamp applied)
 
 # Use case
 
