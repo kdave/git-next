@@ -112,6 +112,9 @@ names or remotes etc.
   created on the same day
 * `+checkout` or `+co`: checkout the branch of a given target (eg. with
   timestamp applied)
+* `+rebase`: rebase using the expanded target branch name, no options to rebase
+  are passed now, use without the execution flag and copy the command line if
+  you need interactive rebase etc
 
 # Use case
 

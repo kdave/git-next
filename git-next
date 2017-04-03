@@ -215,6 +215,15 @@ def action_checkout(target):
     DBG("CHECKOUT " + target)
     do_checkout(target)
 
+def do_rebase(target):
+    name = target_name(target)
+    DBG("REBASE " + target + ": " + name)
+    runcmd("git rebase " + name)
+
+def action_rebase(target):
+    DBG("REBASE " + target)
+    do_rebase(target)
+
 # gather list of sections in the topological order as included
 # using the @directive instead of branch
 def gather_prereq(targ, stack):
@@ -365,6 +374,10 @@ for opt in args:
     if opt == '+checkout' or opt == '+co':
         DBG("checkout the target branch")
         actions.append(action_checkout)
+        continue
+    if opt == '+rebase':
+        DBG("rebase on top of the target branch")
+        actions.append(action_rebase)
         continue
     if opt.startswith('+'):
         print "ERROR: unknown action %s" % (opt)
