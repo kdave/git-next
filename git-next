@@ -114,6 +114,24 @@ def target_name(targ):
 
     return name
 
+def dump_config(args):
+    DBG("ARGS " + str(len(args)))
+    if len(args) == 0:
+        targets = config.sections()
+    else:
+        targets = args
+    for s in targets:
+        print "SECTION", s
+        branches = []
+        for o in config.options(s):
+            val = config.get(s, o)
+            if not val:
+                branches.append(o)
+            else:
+                print " OPTION %s=%s" % (o, config.get(s,o))
+        for br in branches:
+            print " TARGET %s" % (br)
+
 def do_action_push(target, force=False, remote=None):
     DBG("PUSH " + target)
 
@@ -318,10 +336,8 @@ DBG("ARGS " + str(args))
 
 for opt in optlist:
     if opt[0] == '--dump-config':
-        for s in config.sections():
-            print "SECTION", s
-            for o in config.options(s):
-                print " OPTION %s=%s" % (o, config.get(s,o))
+        dump_config(args)
+        sys.exit(0)
     if opt[0] == '--list':
         for s in config.sections():
             print "SECTION:", s
