@@ -1,12 +1,12 @@
 Git branch integration helper.
 
-*Status:* feature semi-complete, unpolished, works for me to
-assemble for-next branches for linux kernel.
+*Status:* feature semi-complete, works for me to assemble for-next branches for
+linux kernel.
 
 ## Syntax
 
 ```shell
- git-next [options] [targets...]
+ git-next [options] [actions...] [targets...]
 ```
 
 The result is series of shell commands that lead to the given target's branch
@@ -70,7 +70,8 @@ Other:
 * `SEALED=bool`: do nothing for the given target
 * `REMOTE=string`: name of remote to fetch the `RBRANCH`
 * `RNAME=string`: name of remote branch to push to, requires `REMOTE`
-* `GITMERGEOPTIONS`: additional options to `git-merg`, eg. strategy, squash or `--allow-unrelated-histories`
+* `GITMERGEOPTIONS`: additional options to `git-merge`, eg. strategy, squash or
+  `--allow-unrelated-histories`
 
 User-defined:
 
@@ -93,14 +94,14 @@ is allowed.
 Duplicate references are silently ignored, because the ini file parser works
 like that.
 
-### Commands
+### Actions
 
-Third type of argument can be a *command* that can do a separate action on
+Third type of argument can be a command that can do a separate *action* on
 existing branches. Usually translates to a git command with substituted branch
 names or remotes etc.
 
-* `+push`: push to remote, translates to `git push REMOTE NAME:RNAME
-* `+pushf`: forced push to remote, translates to `git push -f REMOTE NAME:RNAME
+* `+push`: push to remote, translates to `git push REMOTE NAME:RNAME`
+* `+pushf`: forced push to remote, translates to `git push -f REMOTE NAME:RNAME`
 * `+tslist`: list names of existing local timestamped branches for a given
   target, recursion is supported
 * `+tslist1`: dtto, but ommit the last one, typically the branch that's been
