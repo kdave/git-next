@@ -328,6 +328,28 @@ optlist, args = getopt.getopt(sys.argv[1:], 'efnrx',
         [ 'list', 'dump-config', 'debug', 'fetch', 'recursive',
           'upstream=', 'dry-run', 'remote=', 'exec', 'errors'])
 
+known_actions = {
+    # push target branch to remote
+    # optional parameter: remote
+    '+push':     action_push,
+    # forced push of target branch to remote
+    # optional parameter: remote
+    '+pushf':    action_pushf,
+    # list timestamped branches
+    '+tslist':   action_tslist,
+    # list timestamped branches except the latest one
+    '+tslist1':  action_tslist1,
+    # clean timestamped branches
+    '+tsclean':  action_tsclean,
+    # clean timestamped branches except the latest one
+    '+tsclean1': action_tsclean1,
+    # checkout the target branch
+    '+checkout': action_checkout,
+    '+co':       action_checkout,
+    # rebase on top of the target branch
+    '+rebase':   action_rebase
+}
+
 if '--debug' in [x[0] for x in optlist]:
     DEBUG = True
 
@@ -359,41 +381,9 @@ for opt in optlist:
 actions=[]
 for opt in args:
     DBG("OPTION: " + opt)
-    if opt == '+push':
-        # optional parameter: remote
-        DBG("DO push")
-        actions.append(action_push)
-        continue
-    if opt == '+pushf':
-        # optional parameter: remote
-        DBG("DO forced push")
-        actions.append(action_pushf)
-        continue
-    if opt == '+tslist1':
-        DBG("DO list timestamped branches except the latest one")
-        actions.append(action_tslist1)
-        continue
-    if opt == '+tslist':
-        DBG("DO list all timestamped branches")
-        actions.append(action_tslist)
-        continue
-    if opt == '+tsclean1':
-        # optional parameter: remote
-        DBG("DO clean timestamped branches except the latest one")
-        actions.append(action_tsclean1)
-        continue
-    if opt == '+tsclean':
-        # optional parameter: remote
-        DBG("DO clean timestamped branches")
-        actions.append(action_tsclean)
-        continue
-    if opt == '+checkout' or opt == '+co':
-        DBG("checkout the target branch")
-        actions.append(action_checkout)
-        continue
-    if opt == '+rebase':
-        DBG("rebase on top of the target branch")
-        actions.append(action_rebase)
+    if opt in known_actions.keys():
+        DBG("DO " + opt)
+        actions.append(known_actions[opt])
         continue
     if opt.startswith('+'):
         print "ERROR: unknown action %s" % (opt)
