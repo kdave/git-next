@@ -242,6 +242,17 @@ def action_rebase(target):
     DBG("REBASE " + target)
     do_rebase(target)
 
+def action_fetch(target):
+    DBG("FETCH " + target)
+    targets = gather_prereq(target, [])
+    remotes = []
+    for t in targets:
+        r = config_get_str(t, 'REMOTE', None)
+        if r:
+            remotes.append(r)
+    for r in set(remotes):
+        runcmd("git fetch " + r)
+
 # gather list of sections in the topological order as included
 # using the @directive instead of branch
 def gather_prereq(targ, stack):
@@ -347,7 +358,9 @@ known_actions = {
     '+checkout': action_checkout,
     '+co':       action_checkout,
     # rebase on top of the target branch
-    '+rebase':   action_rebase
+    '+rebase':   action_rebase,
+    # fetch all remotes
+    '+fetch':   action_fetch,
 }
 
 if '--debug' in [x[0] for x in optlist]:

@@ -115,6 +115,7 @@ names or remotes etc.
 * `+rebase`: rebase using the expanded target branch name, no options to rebase
   are passed now, use without the execution flag and copy the command line if
   you need interactive rebase etc
+* `+fetch`: separate command to fetch all remotes reachable from a given target
 
 # Use case
 
