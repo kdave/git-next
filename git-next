@@ -71,6 +71,10 @@ REMOTE = []
 EXECUTE = False
 # --errors, -e
 CATCHERRORS = False
+# --autoclean, --no-autoclean
+# delete marked branches after the final target is successfuly assembled
+# do not autoclean if requesting the target
+AUTOCLEAN = True
 
 def runcmd(command):
     if EXECUTE:
@@ -337,7 +341,8 @@ def dotarget(targ):
 # main
 optlist, args = getopt.getopt(sys.argv[1:], 'efnrx',
         [ 'list', 'dump-config', 'debug', 'fetch', 'recursive',
-          'upstream=', 'dry-run', 'remote=', 'exec', 'errors'])
+          'upstream=', 'dry-run', 'remote=', 'exec', 'errors',
+          'no-autoclean', 'autoclean'])
 
 known_actions = {
     # push target branch to remote
@@ -390,6 +395,10 @@ for opt in optlist:
         CATCHERRORS = True;
     if opt[0] in ('--exec', '-x'):
         EXECUTE = True;
+    if opt[0] == '--autoclean':
+        AUTOCLEAN = True
+    if opt[0] == '--no-autoclean':
+        AUTOCLEAN = False
 
 actions=[]
 for opt in args:
