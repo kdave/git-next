@@ -237,10 +237,18 @@ def action_checkout(target):
     DBG("CHECKOUT " + target)
     do_checkout(target)
 
+# TODO: checkout or current, no diff, no --cached diff
+# then git rebase UPSTREAM
 def do_rebase(target):
     name = target_name(target)
-    DBG("REBASE " + target + ": " + name)
-    runcmd("git rebase " + name)
+    if UPSTREAM == "master":
+        print "ERROR: rebase on master not allowed for now"
+        sys.exit(12)
+    if not UPSTREAM:
+        print "ERROR: set --upstream for rebase"
+        sys.exit(12)
+    DBG("REBASE " + target + ": " + name + " on " + UPSTREAM)
+    runcmd("git rebase " + name + " " + UPSTREAM)
 
 def action_rebase(target):
     DBG("REBASE " + target)
@@ -363,6 +371,7 @@ known_actions = {
     '+checkout': action_checkout,
     '+co':       action_checkout,
     # rebase on top of the target branch
+    # mandatory parameter: upstream
     '+rebase':   action_rebase,
     # fetch all remotes
     '+fetch':   action_fetch,
