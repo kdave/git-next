@@ -76,6 +76,16 @@ CATCHERRORS = False
 # do not autoclean if requesting the target
 AUTOCLEAN = True
 
+def runhook(command):
+    if EXECUTE:
+        print "+", command
+        ret = subprocess.call(command, shell = True)
+        if ret != 0:
+            print "ERROR: hook: shell exited with %d" % (ret)
+            sys.exit(ret)
+    else:
+        print command
+
 def runcmd(command):
     if EXECUTE:
         print "+", command
@@ -138,6 +148,11 @@ def dump_config(args):
 
 def do_action_push(target, force=False, remote=None):
     DBG("PUSH " + target)
+
+    if config.has_option(target, "HOOKPREPUSH"):
+        cmd = config.get(target, "HOOKPREPUSH")
+        DBG("PUSH: pre hook: " + cmd)
+        runhook(cmd)
 
     if not remote:
         if not config.has_option(target, "REMOTE"):

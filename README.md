@@ -72,6 +72,7 @@ Other:
 * `RNAME=string`: name of remote branch to push to, requires `REMOTE`
 * `GITMERGEOPTIONS`: additional options to `git-merge`, eg. strategy, squash or
   `--allow-unrelated-histories`
+* `HOOKPREPUSH`: run the command before the `git push` and don't push if it fails
 
 User-defined:
 
