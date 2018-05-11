@@ -42,7 +42,12 @@ def config_get_str(section, value, default, debug=False):
     except ConfigParser.NoOptionError:
         return default
 
-fnext=open("git-next.conf")
+try:
+    fnext=open("git-next.conf")
+except IOError:
+    print "ERROR: cannot find config file git-next.conf"
+    sys.exit(1)
+
 config = MyConfigParser()
 config.readfp(fnext)
 
