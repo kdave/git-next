@@ -151,6 +151,39 @@ def dump_config(args):
         for br in branches:
             print " TARGET %s" % (br)
 
+def dump_branch_tree_rec(targets, prefix):
+    for s in targets:
+        print prefix + "* " + s + " (" + target_name(s) + ")"
+        print prefix + "|\\"
+        branches = []
+        for o in config.options(s):
+            val = config.get(s, o)
+            if not val:
+                branches.append(o)
+        # git merges the branches top-down but the DAG is prefered by humans in
+        # the reverse order, ie. bottom-up where root of the tree is the last
+        # merge
+        branches.reverse()
+        for br in branches:
+            if br.startswith("@"):
+                dump_branch_tree_rec([br[1:]], prefix + "| ")
+            else:
+                print prefix + "| * " + br
+
+def dump_branch_tree(args):
+    DBG("ARGS " + str(len(args)))
+    if len(args) == 0:
+        targets = config.sections()
+    else:
+        targets = args
+
+    sep = None
+    for target in targets:
+        if sep:
+            print sep
+        dump_branch_tree_rec([target], '')
+        sep = '---'
+
 def do_action_push(target, force=False, remote=None):
     DBG("PUSH " + target)
 
@@ -382,7 +415,7 @@ def dotarget(targ):
 optlist, args = getopt.getopt(sys.argv[1:], 'efnrx',
         [ 'list', 'dump-config', 'debug', 'fetch', 'recursive',
           'upstream=', 'dry-run', 'remote=', 'exec', 'errors',
-          'no-autoclean', 'autoclean'])
+          'no-autoclean', 'autoclean', 'tree'])
 
 known_actions = {
     # default action to assemble the target branch, recursively or just the
@@ -425,6 +458,9 @@ DBG("ARGS " + str(args))
 for opt in optlist:
     if opt[0] == '--dump-config':
         dump_config(args)
+        sys.exit(0)
+    if opt[0] == '--tree':
+        dump_branch_tree(args)
         sys.exit(0)
     if opt[0] == '--list':
         for s in config.sections():
