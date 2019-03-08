@@ -285,6 +285,18 @@ def action_fetch(target):
     for r in set(remotes):
         runcmd("git fetch " + r)
 
+def action_assemble(target):
+    DBG("ASSEMBLE " + target)
+    if RECURSIVE:
+        DBG("RECURSIVELY generate deps")
+        targets = gather_prereq(opt, [])
+        DBG("prereq",str(targets))
+        for t in targets:
+            dotarget(t)
+    else:
+        DBG("CREATE target")
+        dotarget(target)
+
 # gather list of sections in the topological order as included
 # using the @directive instead of branch
 def gather_prereq(targ, stack):
@@ -373,12 +385,19 @@ optlist, args = getopt.getopt(sys.argv[1:], 'efnrx',
           'no-autoclean', 'autoclean'])
 
 known_actions = {
+    # default action to assemble the target branch, recursively or just the
+    # last one
+    '+default':  action_assemble,
+    '+build':    action_assemble,
+    '+b':        action_assemble,
     # push target branch to remote
     # optional parameter: remote
     '+push':     action_push,
+    '+p':        action_push,
     # forced push of target branch to remote
     # optional parameter: remote
     '+pushf':    action_pushf,
+    '+pf':       action_pushf,
     # list timestamped branches
     '+tslist':   action_tslist,
     # list timestamped branches except the latest one
@@ -439,18 +458,9 @@ for opt in args:
     if opt.startswith('+'):
         print "ERROR: unknown action %s" % (opt)
         sys.exit(13)
-    targets = gather_prereq(opt, [])
-    DBG("prereq",str(targets))
     # default action is just generate and print
     if len(actions) == 0:
-        if RECURSIVE:
-            DBG("RECURSIVELY generate deps")
-            for t in targets:
-                dotarget(t)
-        else:
-            DBG("CREATE target")
-            for t in targets[-1:]:
-                dotarget(t)
+        action_assemble(opt)
     else:
         DBG("ACTIONS: " + str(actions))
         for act in actions:
