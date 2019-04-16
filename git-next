@@ -1,18 +1,18 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # git branch integration helper
 #
 # usage: $0 [target]
 #
 # generates git commands, pipe to 'sh -ex' to execute or use '-xe' directly
 
-import ConfigParser
+import configparser
 import sys
 import datetime
 import subprocess
 import getopt
 import re
 
-class MyConfigParser(ConfigParser.SafeConfigParser):
+class MyConfigParser(configparser.ConfigParser):
     def __init__(self):
         # allow only key=value
         self.OPTCRE_NV = re.compile(
@@ -24,7 +24,7 @@ class MyConfigParser(ConfigParser.SafeConfigParser):
              # space/tab
              r'(?P<value>.*))?$'                 # everything up to eol
              )
-        ConfigParser.SafeConfigParser.__init__(self, allow_no_value=True)
+        configparser.ConfigParser.__init__(self, allow_no_value=True)
 
     # Keep key names as-is, use upper case everywhere, keep case for branch names
     def optionxform(self, option):
@@ -33,23 +33,23 @@ class MyConfigParser(ConfigParser.SafeConfigParser):
 def config_get_bool(section, value, default, debug=False):
     try:
         return config.getboolean(section, value)
-    except ConfigParser.NoOptionError:
+    except configparser.NoOptionError:
         return default
 
 def config_get_str(section, value, default, debug=False):
     try:
         return config.get(section, value)
-    except ConfigParser.NoOptionError:
+    except configparser.NoOptionError:
         return default
 
 try:
     fnext=open("git-next.conf")
 except IOError:
-    print "ERROR: cannot find config file git-next.conf"
+    print("ERROR: cannot find config file git-next.conf")
     sys.exit(1)
 
 config = MyConfigParser()
-config.readfp(fnext)
+config.read_file(fnext)
 
 # TODO: make configurable
 date=datetime.datetime.now().strftime("%Y%m%d")
@@ -83,28 +83,28 @@ AUTOCLEAN = True
 
 def runhook(command):
     if EXECUTE:
-        print "+", command
+        print("+", command)
         ret = subprocess.call(command, shell = True)
         if ret != 0:
-            print "ERROR: hook: shell exited with %d" % (ret)
+            print("ERROR: hook: shell exited with %d" % (ret))
             sys.exit(ret)
     else:
-        print command
+        print(command)
 
 def runcmd(command):
     if EXECUTE:
-        print "+", command
+        print("+", command)
         ret = subprocess.call(command, shell = True)
         if CATCHERRORS:
             if ret != 0:
-                print "ERROR: shell exited with %d" % (ret)
+                print("ERROR: shell exited with %d" % (ret))
                 sys.exit(ret)
     else:
-        print command
+        print(command)
 
 def realbase(sect):
     if config.has_option(sect, "BASE") and config.has_option(sect, "MERGEBASE"):
-        print "ERROR: %s: cannot have BASE and MERGEBASE" % (sect)
+        print("ERROR: %s: cannot have BASE and MERGEBASE" % (sect))
         sys.exit(1)
     if config.has_option(sect, "BASE"):
         return config.get(sect, "BASE")
@@ -118,13 +118,13 @@ def realbase(sect):
                 config.get(sect, "MERGEBASE"), ")"])
 
     else:
-        print "ERROR: %s: cannot have no BASE nor MERGEBASE" % (sect)
+        print("ERROR: %s: cannot have no BASE nor MERGEBASE" % (sect))
         sys.exit(1)
 
 def DBG(*args):
     if not DEBUG:
         return
-    print "# DEBUG:"," ".join(args)
+    print("# DEBUG:"," ".join(args))
 
 def target_name(targ):
     name = config.get(targ, "NAME")
@@ -140,21 +140,21 @@ def dump_config(args):
     else:
         targets = args
     for s in targets:
-        print "SECTION", s
+        print("SECTION", s)
         branches = []
         for o in config.options(s):
             val = config.get(s, o)
             if not val:
                 branches.append(o)
             else:
-                print " OPTION %s=%s" % (o, config.get(s,o))
+                print(" OPTION %s=%s" % (o, config.get(s,o)))
         for br in branches:
-            print " TARGET %s" % (br)
+            print(" TARGET %s" % (br))
 
 def dump_branch_tree_rec(targets, prefix):
     for s in targets:
-        print prefix + "* " + s + " (" + target_name(s) + ")"
-        print prefix + "|\\"
+        print(prefix + "* " + s + " (" + target_name(s) + ")")
+        print(prefix + "|\\")
         branches = []
         for o in config.options(s):
             val = config.get(s, o)
@@ -168,7 +168,7 @@ def dump_branch_tree_rec(targets, prefix):
             if br.startswith("@"):
                 dump_branch_tree_rec([br[1:]], prefix + "| ")
             else:
-                print prefix + "| * " + br
+                print(prefix + "| * " + br)
 
 def dump_branch_tree(args):
     DBG("ARGS " + str(len(args)))
@@ -180,7 +180,7 @@ def dump_branch_tree(args):
     sep = None
     for target in targets:
         if sep:
-            print sep
+            print(sep)
         dump_branch_tree_rec([target], '')
         sep = '---'
 
@@ -194,10 +194,10 @@ def do_action_push(target, force=False, remote=None):
 
     if not remote:
         if not config.has_option(target, "REMOTE"):
-            print "ERROR: %s: REMOTE not set for push" % (target)
+            print("ERROR: %s: REMOTE not set for push" % (target))
             sys.exit(1)
     if not config.has_option(target, "RNAME"):
-        print "ERROR: %s: RNAME not set for push" % (target)
+        print("ERROR: %s: RNAME not set for push" % (target))
         sys.exit(1)
 
     remote = config.get(target, "REMOTE")
@@ -295,10 +295,10 @@ def action_checkout(target):
 def do_rebase(target):
     name = target_name(target)
     if UPSTREAM == "master":
-        print "ERROR: rebase on master not allowed for now"
+        print("ERROR: rebase on master not allowed for now")
         sys.exit(12)
     if not UPSTREAM:
-        print "ERROR: set --upstream for rebase"
+        print("ERROR: set --upstream for rebase")
         sys.exit(12)
     DBG("REBASE " + target + ": " + name + " on " + UPSTREAM)
     runcmd("git rebase " + name + " " + UPSTREAM)
@@ -340,8 +340,8 @@ def gather_prereq(targ, stack):
     DBG("gather: " + targ + ", stack=" + str(stack))
 
     if targ in stack:
-        print "ERROR: indirect recursion in " + targ
-        print "Stack:\n\t" + "\n\t".join(stack)
+        print("ERROR: indirect recursion in " + targ)
+        print("Stack:\n\t" + "\n\t".join(stack))
         sys.exit(13)
     stack.append(targ)
 
@@ -353,8 +353,8 @@ def gather_prereq(targ, stack):
         if br.startswith("@"):
             DBG("found rec", br[1:])
             if br[1:] == targ:
-                print "ERROR: self recursion in " + targ
-                print "Stack:\n\t" + "\n\t".join(stack)
+                print("ERROR: self recursion in " + targ)
+                print("Stack:\n\t" + "\n\t".join(stack))
                 sys.exit(13)
             for pr in gather_prereq(br[1:], stack):
                 if not (pr in prereq):
@@ -373,7 +373,7 @@ def dotarget(targ):
     try:
         gitmergeoptions = config.get(targ, "GITMERGEOPTIONS")
         DBG("use additional git merge options " + gitmergeoptions)
-    except ConfigParser.NoOptionError:
+    except configparser.NoOptionError:
         pass
 
     sealed = config_get_bool(targ, "SEALED", False)
@@ -386,7 +386,7 @@ def dotarget(targ):
         rbranch = config.get(targ, "RBRANCH")
         if FETCH:
             runcmd("git fetch %s" % remote)
-    except ConfigParser.NoOptionError:
+    except configparser.NoOptionError:
         remote = None
         rbranch = None
 
@@ -464,7 +464,7 @@ for opt in optlist:
         sys.exit(0)
     if opt[0] == '--list':
         for s in config.sections():
-            print "SECTION:", s
+            print("SECTION:", s)
     if opt[0] in ('--fetch', '-f'):
         FETCH = True
     if opt[0] in ('--recursive', '-r'):
@@ -492,7 +492,7 @@ for opt in args:
         actions.append(known_actions[opt])
         continue
     if opt.startswith('+'):
-        print "ERROR: unknown action %s" % (opt)
+        print("ERROR: unknown action %s" % (opt))
         sys.exit(13)
     # default action is just generate and print
     if len(actions) == 0:
