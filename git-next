@@ -416,7 +416,7 @@ def dotarget(targ):
 optlist, args = getopt.getopt(sys.argv[1:], 'efnrx',
         [ 'list', 'dump-config', 'debug', 'fetch', 'recursive',
           'upstream=', 'dry-run', 'remote=', 'exec', 'errors',
-          'no-autoclean', 'autoclean', 'tree'])
+          'no-autoclean', 'autoclean', 'tree', 'rfex'])
 
 known_actions = {
     # default action to assemble the target branch, recursively or just the
@@ -484,6 +484,11 @@ for opt in optlist:
         AUTOCLEAN = True
     if opt[0] == '--no-autoclean':
         AUTOCLEAN = False
+    if opt[0] == '--rfex':
+        RECURSIVE = True
+        FETCH = True
+        CATCHERRORS = True;
+        EXECUTE = True
 
 actions=[]
 for opt in args:
