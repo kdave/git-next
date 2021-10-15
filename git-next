@@ -200,13 +200,14 @@ def do_action_push(target, force=False, remote=None):
         print("ERROR: %s: RNAME not set for push" % (target))
         sys.exit(1)
 
-    remote = config.get(target, "REMOTE")
+    remotes = config.get(target, "REMOTE").split(",")
     rname = config.get(target, "RNAME")
     name = target_name(target)
     if force: force = ' -f '
     else: force = ''
 
-    runcmd("git push " + force + remote + " " + name + ":" + rname)
+    for remote in remotes:
+        runcmd("git push " + force + remote + " " + name + ":" + rname)
 
 def action_push(target):
     do_action_push(target, False)
