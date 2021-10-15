@@ -215,6 +215,10 @@ def action_push(target):
 def action_pushf(target):
     do_action_push(target, True)
 
+def action_bpf(target):
+    action_assemble(target)
+    do_action_push(target, True)
+
 def do_tslist_target(target, keeplast, cmd):
     if not config_get_bool(target, "TIMESTAMP", False):
         return
@@ -432,6 +436,7 @@ known_actions = {
     # optional parameter: remote
     '+pushf':    action_pushf,
     '+pf':       action_pushf,
+    '+bpf':      action_bpf,
     # list timestamped branches
     '+tslist':   action_tslist,
     # list timestamped branches except the latest one
