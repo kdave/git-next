@@ -335,6 +335,34 @@ def action_assemble(target):
         DBG("CREATE target")
         dotarget(target)
 
+def action_retopic(target):
+    DBG("RETOPIC " + target)
+    topic = config_get_str(target, "TOPICBASE", None)
+    if not topic:
+        print("ERROR: no TOPICBASE set in " + target)
+        sys.exit(1)
+    topicrebase = config_get_str(target, "TOPICREBASECMD", None)
+    if not topicrebase:
+        print("ERROR: no TOPICREBASECMD set in " + target)
+        sys.exit(1)
+    DBG("RETOPIC on " + topic + " command: " + topicrebase)
+    todo = []
+    for br in config.options(target):
+        val = config.get(target, br)
+        if not val:
+            if br == topic:
+                continue
+            todo.append(br)
+
+    for br in todo:
+        DBG("topic rebase of " + br)
+        print("git checkout " + br)
+        # TODO: Ask first
+        # TODO: Should fail if it does not work
+        runcmd("git checkout %s" % (br))
+        DBG("run rebase command")
+        runcmd(topicrebase)
+
 # gather list of sections in the topological order as included
 # using the @directive instead of branch
 def gather_prereq(targ, stack):
@@ -453,6 +481,8 @@ known_actions = {
     '+rebase':   action_rebase,
     # fetch all remotes
     '+fetch':   action_fetch,
+    "+retopic": action_retopic,
+    "+retop":   action_retopic,
 }
 
 if '--debug' in [x[0] for x in optlist]:
